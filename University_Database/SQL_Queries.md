@@ -1,4 +1,8 @@
+## Queries on University Database
 
+### ER Diagram:
+
+![ER Diagram](img/University%20Database%20Schema.png)
 
 ### 1. Create a View that shows the most popular departments by the number of courses offered in 2010;
 
@@ -153,3 +157,81 @@ SELECT get_prereq_id.course_id,
 ```
 
 ![Result of Query 5](img/query5.png)
+
+
+
+
+
+
+## 6. Find all the courses that advisors are teaching, show the course id, instructor id, instructor name, department, course title and section.
+
+
+```
+
+SELECT teaches.course_id, 
+        instructor.ID, 
+        instructor.name, 
+        instructor.dept_name, 
+        course.title, 
+        section.sec_id, 
+        section.room_number
+	FROM 
+        advisor, 
+        instructor, 
+        teaches, 
+        section, 
+        course  
+	    WHERE 
+            instructor.ID = advisor.i_ID
+            AND teaches.ID = instructor.ID
+            AND teaches.course_id = section.course_id
+            AND teaches.sec_id = section.sec_id
+            AND teaches.semester = section.semester
+            AND teaches.year = section.year
+            AND course.course_id = section.course_id;
+
+```
+![Result of Query 6](img\query6.png)
+
+
+## 7. Get class duration for classes on Wednesday
+
+```
+SELECT day, 
+		time_slot_id,
+		((end_hr - start_hr)*60 + (end_min - start_min)) as minutes
+	FROM time_slot
+		WHERE day = 'W';
+```
+![Result of Query 7](img/query7.png)
+
+
+
+
+## 8. Find the easiest department to take classes with. (having more number of highest grade students)
+
+```
+SELECT course.dept_name,
+        count(*) as 'count of A+ grade students'
+    FROM student, 
+        takes, 
+        section, 
+        course
+        WHERE 
+        student.ID = takes.ID
+        AND takes.course_id = section.course_id
+        AND takes.sec_id = section.sec_id
+        AND takes.semester = section.semester
+        AND takes.year = section.year
+        AND section.course_id = course.course_id
+        AND takes.grade = 'A+'
+            GROUP BY course.dept_name
+                ORDER by count(*) DESC
+                    LIMIT 1;
+```
+
+![Result of Query 8](img/query8.png)
+
+
+
+
