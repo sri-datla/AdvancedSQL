@@ -20,7 +20,7 @@ SELECT *
 	FROM most_popular_departments;
 
 ```
-![Result of Query 1](img\query1.png)
+![Result of Query 1](img/query1.png)
 
 Most popular departments are - **Math** and **Geology**
 
