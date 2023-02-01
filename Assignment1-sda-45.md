@@ -52,7 +52,7 @@ SELECT section.building,
 
 ```
 
-![Result of Query 2](img\query2.png)
+![Result of Query 2](img/query2.png)
 
 ---
 ___
@@ -78,7 +78,7 @@ SELECT DISTINCT instructor.id,
 
 ```
 
-![Result of Query 3](img\query3.png)
+![Result of Query 3](img/query3.png)
 
 ---
 ___
@@ -106,7 +106,7 @@ SELECT salary_of_instructors.instructor_name,
 
 ```
 
-![Result of Query 4](img\query4.png)
+![Result of Query 4](img/query4.png)
 
 ---
 ___
@@ -152,4 +152,4 @@ SELECT get_prereq_id.course_id,
 
 ```
 
-![Result of Query 5](img\query5.png)
+![Result of Query 5](img/query5.png)
