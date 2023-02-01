@@ -159,6 +159,8 @@ SELECT get_prereq_id.course_id,
 ![Result of Query 5](img/query5.png)
 
 
+---
+___
 
 
 
@@ -191,8 +193,10 @@ SELECT teaches.course_id,
             AND course.course_id = section.course_id;
 
 ```
-![Result of Query 6](img\query6.png)
+![Result of Query 6](img/query6.png)
 
+---
+___
 
 ## 7. Get class duration for classes on Wednesday
 
@@ -206,6 +210,8 @@ SELECT day,
 ![Result of Query 7](img/query7.png)
 
 
+---
+___
 
 
 ## 8. Find the easiest department to take classes with. (having more number of highest grade students)
