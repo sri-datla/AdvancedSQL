@@ -11,14 +11,12 @@ CREATE VIEW most_popular_departments AS
 	SELECT department.dept_name as department_name, 
 		COUNT(course.course_id) as number_of_courses
 			FROM department
-				INNER JOIN course 
-					ON department.dept_name = course.dept_name
-						INNER JOIN section 
-							ON course.course_id = section.course_id
-								WHERE section.year = '2010'
-									GROUP BY department.dept_name
-										HAVING COUNT(course.course_id) > 1
-											ORDER BY COUNT(course.course_id) DESC;
+				INNER JOIN course ON department.dept_name = course.dept_name
+				INNER JOIN section ON course.course_id = section.course_id
+					WHERE section.year = '2010'
+						GROUP BY department.dept_name
+							HAVING COUNT(course.course_id) > 1
+								ORDER BY COUNT(course.course_id) DESC;
 
 SELECT * 
 	FROM most_popular_departments;
@@ -39,19 +37,14 @@ ___
 SELECT section.building, 
 	COUNT(DISTINCT instructor.ID) AS number_of_distinct_instructors 
 		FROM instructor
-			INNER JOIN teaches
-				ON teaches.ID = instructor.ID
-					INNER JOIN section
-						ON teaches.sec_id = section.sec_id 
-							AND teaches.year = section.year 
-								AND teaches.course_id = section.course_id 
-									AND teaches.semester = section.semester
-										INNER JOIN course 
-											ON section.course_id = course.course_id
-												WHERE teaches.year >= '2008'
-													GROUP BY section.building
-														HAVING COUNT(teaches.course_id) >= 1 
-															and COUNT(DISTINCT instructor.ID) >= 1
+			INNER JOIN teaches ON teaches.ID = instructor.ID
+			INNER JOIN section ON teaches.sec_id = section.sec_id 
+			AND teaches.year = section.year 
+			AND teaches.course_id = section.course_id AND teaches.semester = section.semester
+			INNER JOIN course ON section.course_id = course.course_id
+				WHERE teaches.year >= '2008'
+					GROUP BY section.building
+						HAVING COUNT(teaches.course_id) >= 1 and COUNT(DISTINCT instructor.ID) >= 1
 
 
 ```
@@ -68,16 +61,11 @@ ___
 SELECT DISTINCT instructor.id, 
 	instructor.name 
 		FROM instructor
-			INNER JOIN teaches
-				ON teaches.ID = instructor.ID
-					INNER JOIN section
-						ON teaches.sec_id = section.sec_id 
-							AND teaches.year = section.year 
-								AND teaches.course_id = section.course_id 
-									AND teaches.semester = section.semester
-										INNER JOIN course 
-											ON section.course_id = course.course_id
-												WHERE instructor.dept_name <> course.dept_name;
+			INNER JOIN teaches ON teaches.ID = instructor.ID
+			INNER JOIN section ON teaches.sec_id = section.sec_id AND teaches.year = section.year 
+			AND teaches.course_id = section.course_id AND teaches.semester = section.semester
+			INNER JOIN course ON section.course_id = course.course_id
+				WHERE instructor.dept_name <> course.dept_name;
 
 
 ```
@@ -96,17 +84,17 @@ WITH salary_of_instructors (instructor_name,department_name,salary,i_rank_of_ins
 (
 	SELECT instructor.name,
 		instructor.dept_name, 
-			instructor.salary,
-				ROW_NUMBER() OVER(PARTITION BY instructor.dept_name ORDER BY instructor.salary DESC) as rank_of_instructor
-					FROM instructor
+		instructor.salary,
+		ROW_NUMBER() OVER(PARTITION BY instructor.dept_name ORDER BY instructor.salary DESC) as rank_of_instructor
+			FROM instructor
 )
 SELECT salary_of_instructors.instructor_name,
 	salary_of_instructors.department_name,
-		salary_of_instructors.salary
-			FROM 
-				salary_of_instructors
-					WHERE i_rank_of_instructor = 2
-						ORDER BY salary_of_instructors.department_name;
+	salary_of_instructors.salary
+		FROM 
+			salary_of_instructors
+				WHERE i_rank_of_instructor = 2
+					ORDER BY salary_of_instructors.department_name;
 
 ```
 
@@ -123,35 +111,29 @@ ___
 ```
 WITH get_courses_with_more_than_2_prereq (course_id, course_title) AS(
 	SELECT course.course_id,
-			course.title
-				FROM course
-					INNER JOIN prereq
-						ON course.course_id = prereq.course_id
-							GROUP BY course.course_id, course.title
-								HAVING COUNT(prereq.prereq_id) > 2
+		course.title
+			FROM course
+				INNER JOIN prereq ON course.course_id = prereq.course_id
+					GROUP BY course.course_id, course.title
+						HAVING COUNT(prereq.prereq_id) > 2
 						),
 
 get_prereq_id (course_id, course_title, prereq_course_id) AS(
 	SELECT get_courses_with_more_than_2_prereq.course_id,
 			get_courses_with_more_than_2_prereq.course_title,
-				prereq.prereq_id
-					FROM course 
-						INNER JOIN prereq
-							ON course.course_id = prereq.course_id
-								INNER JOIN get_courses_with_more_than_2_prereq 
-									ON get_courses_with_more_than_2_prereq.course_id = course.course_id
-					)
+			prereq.prereq_id
+				FROM course 
+					INNER JOIN prereq ON course.course_id = prereq.course_id
+					INNER JOIN get_courses_with_more_than_2_prereq ON get_courses_with_more_than_2_prereq.course_id = course.course_id
+						)
 
 SELECT get_prereq_id.course_id,
-			 get_prereq_id.course_title,
-				get_prereq_id.prereq_course_id, 
-					course.title AS prereq_course_title
-						FROM 
-							get_prereq_id 
-								INNER JOIN course
-									ON course.course_id = get_prereq_id.prereq_course_id;
-
-
+		get_prereq_id.course_title,
+		get_prereq_id.prereq_course_id, 
+		course.title AS prereq_course_title
+			FROM 
+				get_prereq_id 
+				INNER JOIN course ON course.course_id = get_prereq_id.prereq_course_id;
 
 
 ```
@@ -224,16 +206,16 @@ SELECT course.dept_name,
         section, 
         course
         WHERE 
-        student.ID = takes.ID
-        AND takes.course_id = section.course_id
-        AND takes.sec_id = section.sec_id
-        AND takes.semester = section.semester
-        AND takes.year = section.year
-        AND section.course_id = course.course_id
-        AND takes.grade = 'A+'
-            GROUP BY course.dept_name
-                ORDER by count(*) DESC
-                    LIMIT 1;
+			student.ID = takes.ID
+			AND takes.course_id = section.course_id
+			AND takes.sec_id = section.sec_id
+			AND takes.semester = section.semester
+			AND takes.year = section.year
+			AND section.course_id = course.course_id
+			AND takes.grade = 'A+'
+				GROUP BY course.dept_name
+					ORDER by count(*) DESC
+						LIMIT 1;
 ```
 
 ![Result of Query 8](img/query8.png)
