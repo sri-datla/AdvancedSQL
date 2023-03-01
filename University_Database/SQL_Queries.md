@@ -147,7 +147,7 @@ ___
 
 
 
-## 6. Find all the courses that advisors are teaching, show the course id, instructor id, instructor name, department, course title and section.
+### 6. Find all the courses that advisors are teaching, show the course id, instructor id, instructor name, department, course title and section.
 
 
 ```
@@ -180,7 +180,7 @@ SELECT teaches.course_id,
 ---
 ___
 
-## 7. Get class duration for classes on Wednesday
+### 7. Get class duration for classes on Wednesday
 
 ```
 SELECT day, 
@@ -196,7 +196,7 @@ SELECT day,
 ___
 
 
-## 8. Find the easiest department to take classes with. (having more number of highest grade students)
+### 8. Find the easiest department to take classes with. (having more number of highest grade students)
 
 ```
 SELECT course.dept_name,
@@ -221,5 +221,72 @@ SELECT course.dept_name,
 ![Result of Query 8](img/query8.png)
 
 
+### 9. The name of the building used by the highest number of different instructors since 2010
+
+```
+SELECT section.building, COUNT(instructor.ID) as count_of_instructors
+    FROM section, teaches, instructor
+        WHERE teaches.course_id = section.course_id
+            AND teaches.sec_id = section.sec_id 
+            AND teaches.semester = section.semester
+            AND teaches.year = section.year
+            AND instructor.ID = teaches.ID
+            AND teaches.year >= 2010
+                GROUP BY section.building
+                    ORDER BY count_of_instructors DESC 
+                        LIMIT 1;
+
+```
 
 
+### 10. The department that the instructor belongs to out of a list of the advisors that have taken highest number of students where they are the third in the list.
+
+```
+WITH get_num_stud AS (
+    SELECT i_id, COUNT(s_id) AS count_of_students
+            FROM advisor INNER JOIN instructor ON instructor.id = advisor.i_id
+                GROUP BY i_id
+),
+get_high_num AS (
+    SELECT i_id, count_of_students, (ROW_NUMBER() OVER(ORDER BY count_of_students DESC)) AS stud_rank
+        FROM get_num_stud
+)
+SELECT department.dept_name, get_high_num.count_of_students, get_high_num.stud_rank
+    FROM department, get_high_num, instructor
+        WHERE get_high_num.stud_rank = 3
+            AND department.dept_name = instructor.dept_name
+            AND instructor.id = get_high_num.i_id;
+
+
+```
+
+### 11. The name of the instructor that used any single building the most amount of times in 2008.
+
+```
+WITH get_freq_instructor1 AS (
+SELECT instructor.name, section.building, COUNT(*) as no_of_times_building_used
+    FROM section, teaches, instructor
+        WHERE teaches.course_id = section.course_id
+            AND teaches.sec_id = section.sec_id 
+            AND teaches.semester = section.semester
+            AND teaches.year = section.year
+            AND instructor.ID = teaches.ID
+            AND teaches.year = 2008
+                GROUP BY instructor.id, section.building
+            )
+SELECT * FROM get_freq_instructor1;
+
+```
+
+### 12. The number of departments that have a budget that is over the average budget. You must use WITH to determine the list.  Be sure this shows up iny our word document.
+
+```
+WITH get_avg_budget AS (
+    SELECT AVG(budget) AS average_budget
+        FROM department
+)
+SELECT COUNT(*)
+    FROM department
+        WHERE department.budget > (SELECT * FROM get_avg_budget);
+
+```
